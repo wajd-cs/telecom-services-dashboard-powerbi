@@ -1,81 +1,143 @@
-<p align="center"><img src="images/dashboard.png" width="800" alt="Telecom Services Dashboard"></p>
+<div align="center">
 
-<p align="center">
-<img src="https://img.shields.io/badge/Power%20BI-F2C811?style=flat&logo=powerbi&logoColor=black" alt="Power BI">
-<img src="https://img.shields.io/badge/DAX-Measures-blue" alt="DAX">
-<img src="https://img.shields.io/badge/Power%20Query-Data%20Cleaning-green" alt="Power Query">
-<img src="https://img.shields.io/badge/Domain-Telecom-purple" alt="Domain">
-<img src="https://img.shields.io/badge/Language-Arabic-orange" alt="Language">
-</p>
+# Telecom Services Dashboard (Power BI)
 
-## About Telecom Services Dashboard
+**An interactive Power BI dashboard I built during the Advanced Power BI course on Hash Plus — analyzing a telecom company's revenue, billing and collection, customers, and customer support.**
 
-Telecom Services Dashboard is an interactive Power BI report that analyzes the performance of a telecom company in a single page. It brings together revenue, billing and collection, customers, and customer-support data so that decision makers can quickly answer questions such as:
+![Power BI](https://img.shields.io/badge/Power_BI-F2C811?style=for-the-badge&logo=powerbi&logoColor=black)
+![Power Query](https://img.shields.io/badge/Power_Query-4479A1?style=for-the-badge)
+![DAX](https://img.shields.io/badge/DAX-0F9D58?style=for-the-badge)
+![Dashboard](https://img.shields.io/badge/Dashboard-8A2BE2?style=for-the-badge)
 
-- Which branches and service types generate the most revenue?
-- What is the collection rate, and how much is still unpaid or overdue?
-- How are customers distributed across cities, and who are the top-billed customers?
-- How satisfied are customers, how fast are complaints resolved, and which support channels are used most?
+</div>
 
-The dashboard is fully in Arabic and can be filtered by **city** and **customer type**.
+---
+
+## Table of Contents
+- [About the Course](#about-the-course)
+- [What the Project Contains](#what-the-project-contains)
+- [How I Built It](#how-i-built-it)
+- [Key Metrics](#key-metrics)
+- [Insights](#insights)
+- [Dashboard](#dashboard)
+- [Skills Demonstrated](#skills-demonstrated)
+- [Author](#author)
+
+---
+
+## About the Course
+
+This project is one of the dashboards I built for the **Advanced Power BI** course offered by [Hash Plus](https://hashplus.com), an Arabic online learning platform. It is the next step in my data analysis learning path, after my earlier Power BI projects — [Hospital Patients Dashboard](https://github.com/wajd-cs/hospital-dashboard-powerbi) and [Car Rental Dashboard](https://github.com/wajd-cs/car-rental-dashboard-powerbi) — moving from a single flat table to a multi-table data model with DAX measures.
+
+During the course, I built this dashboard to apply what I learned about data modeling, Power Query, and DAX.
+
+## What the Project Contains
+
+A Power BI report built on a telecom company's data (data in Arabic), made of five related tables:
+
+| Table | Rows | Description |
+|---|---|---|
+| Customers | 20 | Name, gender, age, city, subscription date, customer type (individual or business), and subscription status |
+| Usage & Billing | 20 | Branch, data usage (GB), call minutes, SMS, invoice amount, and invoice status |
+| Plans | 20 | Plan name, service type (mobile, home internet, business, data, prepaid), and monthly fee |
+| Complaints | 20 | Complaint type, contact channel, resolution time (hours), status, and satisfaction level |
+| Branches | 10 | Branch name, city, region, manager, and staff numbers |
+
+The dashboard includes:
+
+- **5 KPI cards + 1 multi-row card** — total revenue, uncollected amounts, active customers, number of complaints, and satisfaction rate, plus a billing card for collection rate, churn rate, and overdue and unpaid invoices
+- **6 charts** — revenue by branch (column chart), revenue by service type (donut chart), average bill vs. average plan fee (bar chart), customers by city (column chart), support requests by contact channel (donut chart), and resolution time over time (line chart)
+- **1 table** — top customers by billing
+- **2 slicers** — filter the whole report by city or customer type
+
+## How I Built It
+
+```mermaid
+flowchart LR
+    A[1. Import Data] --> B[2. Transform in Power Query]
+    B --> C[3. Data Model]
+    C --> D[4. DAX Measures]
+    D --> E[5. Charts & Slicers]
+    E --> F[6. Design & Layout]
+```
+
+**1. Imported the data** from an Excel workbook into Power BI, using a **parameter for the file path** so the report can be pointed to a new file easily.
+
+**2. Transformed it in Power Query**:
+- Set the correct data type for every column
+- Trimmed extra spaces from customer names and cities
+- Removed duplicated columns (such as city and subscription status) from the billing and complaints tables, since they already live in the customers table
+- Replaced `-` with "Not included" in plan details, and with `0` in usage data for plans without calls or SMS
+- Added an **Age Group** column and a **Subscription Year** column to the customers table
+
+**3. Built the data model** — the Usage & Billing and Complaints tables connected to Customers, Plans, and Branches.
+
+**4. Wrote DAX measures** for every KPI:
+
+| KPI | DAX |
+|---|---|
+| Total revenue | `SUM('Usage & Billing'[Invoice Amount])` |
+| Collected revenue | `CALCULATE([Total revenue], 'Usage & Billing'[Invoice Status] = "Paid")` |
+| Uncollected amounts | `[Total revenue] - [Collected revenue]` |
+| Collection rate | `DIVIDE([Collected revenue], [Total revenue])` |
+| Active customers | `CALCULATE(COUNTROWS('Customers'), 'Customers'[Subscription Status] = "Active") + 0` |
+| Churn rate | `DIVIDE([Cancelled customers], [Number of customers])` |
+| Satisfaction rate | `DIVIDE(CALCULATE(COUNTROWS('Complaints'), 'Complaints'[Satisfaction Level] IN {"Satisfied", "Very Satisfied"}), [Number of complaints])` |
+
+**5. Created charts** that answer the main business questions:
+
+| Chart | Type | Question |
+|---|---|---|
+| Revenue by branch | Column | Which branches bring in the most revenue? |
+| Revenue by service type | Donut | Which services drive the business? |
+| Average bill vs. plan fee | Bar | Do customers pay more than their plan fee? |
+| Customers by city | Column | Where are the customers? |
+| Top customers by billing | Table | Who are the highest-paying customers? |
+| Support requests by channel | Donut | How do customers contact support? |
+| Resolution speed | Line | How fast are requests handled over time? |
+
+**6. Designed the layout** — KPI cards on top, revenue and customer charts in the middle, and support charts below, with an indigo theme.
 
 ## Key Metrics
 
-The dashboard tracks the following KPIs:
-
-- **Total Revenue**
-- **Uncollected Amounts**
-- **Active Customers**
-- **Number of Complaints**
-- **Satisfaction Rate**
-- **Collection Rate**
-- **Overdue & Unpaid Invoices**
-- **Churn Rate**
-
-## Visualizations
-
-- Revenue by branch
-- Revenue distribution by service type
-- Average bill vs. average plan fee per plan
-- Customers by city
-- Top customers by billing
-- Support requests by contact channel
-- Request handling speed (average resolution time in hours over time)
-
-## Data Model
-
-The report is built on the following tables, connected through relationships in Power BI:
-
-| Table | Description |
+| Metric | Value |
 |---|---|
-| Customers | Customer details: city, customer type, status |
-| Usage & Billing | Invoices, revenue and payment status |
-| Plans | Plans, service type and plan fees |
-| Branches | Company branches |
-| Complaints | Tickets, contact channel, resolution time and satisfaction |
+| Total revenue | 5,820 SAR |
+| Collected revenue | 5,380 SAR |
+| Uncollected amounts | 440 SAR |
+| Collection rate | 92.4% |
+| Active customers | 17 of 20 |
+| Churn rate | 15% |
+| Complaints | 20 |
+| Satisfaction rate | 65% |
+| Average resolution time | ~7 hours |
 
-## Tools & Skills
+## Insights
 
-- [Power BI Desktop](https://powerbi.microsoft.com/desktop/) for building the report.
-- [Power Query](https://learn.microsoft.com/power-query/) for cleaning and preparing the data.
-- Data modeling and table relationships.
-- [DAX](https://learn.microsoft.com/dax/) for calculating the KPIs.
-- Interactive dashboard design in Arabic.
+- **Business plans drive the revenue** — they make up two-thirds of total revenue (3,850 SAR, 66%) from only 5 business invoices.
+- **Al-Faisaliah branch brings in the most revenue** (1,660 SAR), followed by Al-Tahlia (1,430 SAR).
+- **The app is the best support channel** — requests through the app were solved in about 2 hours on average and every customer was satisfied, while call-center requests took about 13 hours and only 1 in 7 customers was satisfied.
+- **Collection is healthy but not complete** — 92.4% of billed revenue was collected, with 2 overdue invoices and 1 unpaid invoice.
 
-## Getting Started
+*Note: with only 20 records per table, this project focuses on demonstrating Power BI techniques and dashboard design rather than statistically significant findings.*
 
-Clone the repository and open the report with Power BI Desktop (free):
+## Dashboard
+<img width="800" alt="Telecom Services Dashboard" src="""" />
 
-```bash
-git clone https://github.com/wajd-cs/telecom-services-dashboard-powerbi.git
-```
 
-Then open `telecom_services_dashboard.pbix` in Power BI Desktop.
+## Skills Demonstrated
+
+- **Power Query** — parameters, trimming text, removing duplicate columns, replacing values, and adding custom columns
+- **Data Modeling** — building relationships between two fact tables and three dimension tables
+- **DAX** — writing measures with `CALCULATE`, `DIVIDE`, and `IN`, and reusing measures inside other measures
+- **Data Visualization** — choosing chart types that match each business question
+- **Interactive Filtering** — slicers that filter the entire report through a shared data model
+- **Dashboard Design** — organizing revenue, customer, and support KPIs into one clear, consistent layout
+- **Business Thinking** — linking billing and support data to show where revenue and customer satisfaction come from
 
 ## Author
 
-This project was built by **Wajd Alluhaibi** as part of her data analysis portfolio. Feel free to connect on [LinkedIn](https://www.linkedin.com/in/wajd-al-luhaibi-9194a1396) or check out more projects on [GitHub](https://github.com/wajd-cs).
+**Wajd Alluhaibi**
+Computer Science Student | Data Analysis & Software Development
 
-## License
-
-This project is shared for educational and portfolio purposes.
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/wajd-al-luhaibi-9194a1396)
